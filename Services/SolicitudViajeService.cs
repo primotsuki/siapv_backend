@@ -102,6 +102,7 @@ namespace siapv_backend.Services
                 sol.horaFin = solicitud.horaFin;
                 sol.lugarOrigenId = solicitud.lugarOrigenId;
                 sol.transporteId = solicitud.transporteId;
+                sol.tipoViajeId = solicitud.tipoViajeId;
                 sol.updatedAt = DateTime.UtcNow;
                 db.solicitudViajes.Update(sol);
                 var result = await db.SaveChangesAsync();
@@ -162,6 +163,77 @@ namespace siapv_backend.Services
                                      certPresId = sol.certPresId,
                                  }).ToList();
             return solicitudesEmp;
+        }
+        public async Task<List<DTOSolicitudesPasajes>> getSolicitudesbyParams(DTOsolParams request)
+        {
+            var query = from u in userDb.Usuarios
+                         join p in userDb.Personas
+                         on u.PersonaId equals p.Id
+                         join e in userDb.EmpleadosContratos on p.Id equals e.personaId
+                         select new DTOUserInfo
+                         {
+                             userId = u.Id,
+                             personaId = u.PersonaId,
+                             empleadoId = e.Id,
+                             cargo = e.DenominacionCargo,
+                             nombres = p.Nombres,
+                             apellido_paterno = p.apellido_paterno,
+                             apellido_materno = p.apellido_materno,
+                             SearchVector = p.SearchVector,
+
+                         };
+            List<DTOUserInfo> result;
+          if (request.searchTerm != null && request.searchTerm.Length > 3)
+            {
+                result =  query.Where(p => p.SearchVector
+                .Matches(EF.Functions.PlainToTsQuery("spanish", request.searchTerm)))
+                .Skip((request.page - 1) * request.pageSize)
+                .Take(request.pageSize)
+                .ToList();
+            }
+            else
+            {
+                result = query.
+                    Skip((request.page - 1) * request.pageSize)
+                    .Take(request.pageSize)
+                    .ToList ();
+            }
+            var solicitudes = (from s in db.solicitudViajes
+                                join d in db.lugarDestinos on s.lugarDestinoId equals d.Id
+                                join es in db.estadoSolicitudes on s.estadoId equals es.Id
+                               join cp in db.certificacionPOAs on s.Id equals cp.solicitudId
+                               into cpoa from cp in cpoa.DefaultIfEmpty()
+                               join cpr in db.certificacionPresupuestarias on s.Id equals cpr.solicitudId
+                               into cpres from cpr in cpres.DefaultIfEmpty()
+                               select new DTOSolicitudEstado
+                               {
+                                    solicitudId = s.Id,
+                                    estadoId = es.Id,
+                                    empleadoId = s.empleadoId,
+                                    estado = es.estado,
+                                    fechaInicio = s.fechaInicio,
+                                    fechaFin = s.fechaFin,
+                                    certPoaId = cp.Id,
+                                    certPresId = cpr.Id
+                               }).ToList();
+            var solicitudescompiled = (from q in query 
+                                        join s in solicitudes
+                                        on q.empleadoId equals s.empleadoId
+                                        select new DTOSolicitudesPasajes
+                                        {
+                                            solicitudId = s.solicitudId,
+                                            estadoId = s.estadoId,
+                                            empleadoId = s.empleadoId,
+                                            estado = s.estado,
+                                            fechaInicio = s.fechaInicio,
+                                            fechaFin = s.fechaFin,
+                                            certPoaId = s.certPoaId,
+                                            certPresId = s.certPresId,
+                                            nombres = q.nombres,
+                                            apellido_paterno = q.apellido_paterno,
+                                            apellido_materno = q.apellido_materno,
+                                        }).ToList();
+            return solicitudescompiled;
         }
     }
 }
