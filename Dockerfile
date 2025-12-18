@@ -26,4 +26,4 @@ COPY --from=build-env /App/Assets ./Assets
 # COPY --from=build-env /App/Templates ./Templates
 COPY --from=build-env /App/out .
 
-ENTRYPOINT ["dotnet", "backend_sicap.dll"]
+ENTRYPOINT ["dotnet", "siapv_backend.dll"]
