@@ -34,7 +34,7 @@ namespace siapv_backend.Services
                         em.correo
                     }).ToList();
             // buscar designador
-            var designador = (from p in usrDb.Personas 
+            var designador = await (from p in usrDb.Personas 
                                 join us in usrDb.Usuarios on p.Id equals us.PersonaId
                                 join em in usrDb.EmpleadosContratos on p.Id equals em.personaId
                                 where em.Id == solicitud.designadorId
