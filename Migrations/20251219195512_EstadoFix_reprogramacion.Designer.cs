@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using siapv_backend.DB;
@@ -11,9 +12,11 @@ using siapv_backend.DB;
 namespace siapv_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251219195512_EstadoFix_reprogramacion")]
+    partial class EstadoFix_reprogramacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -422,47 +425,6 @@ namespace siapv_backend.Migrations
                     b.ToTable("reprogramaciones");
                 });
 
-            modelBuilder.Entity("siapv_backend.Models.RevisionFormularios", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("estadoId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("fucav")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("informe")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("memo")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("poa")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("presupuesto")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("solicitudId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("estadoId");
-
-                    b.HasIndex("solicitudId");
-
-                    b.ToTable("revisiones");
-                });
-
             modelBuilder.Entity("siapv_backend.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -681,25 +643,6 @@ namespace siapv_backend.Migrations
                     b.Navigation("destino");
 
                     b.Navigation("origen");
-
-                    b.Navigation("solicitud");
-                });
-
-            modelBuilder.Entity("siapv_backend.Models.RevisionFormularios", b =>
-                {
-                    b.HasOne("siapv_backend.Models.EstadoSolicitud", "estado")
-                        .WithMany()
-                        .HasForeignKey("estadoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("siapv_backend.Models.SolicitudViaje", "solicitud")
-                        .WithMany()
-                        .HasForeignKey("solicitudId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("estado");
 
                     b.Navigation("solicitud");
                 });

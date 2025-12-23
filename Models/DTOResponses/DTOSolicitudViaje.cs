@@ -9,5 +9,8 @@ namespace siapv_backend.Models.DTOResponses
         public string proyecto { get; set; } = null!;
         public string estado { get; set; } = null!;
         public int estadoId { get; set; }
+        public int? certPoaId {get; set;}
+        public int? certPresId {get; set;}
+        public int? reprogId {get; set; }
     }
 }

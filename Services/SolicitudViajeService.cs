@@ -51,17 +51,26 @@ namespace siapv_backend.Services
                                 join ld in db.lugarDestinos on sv.lugarDestinoId equals ld.Id
                                 join p in db.proyectos on sv.proyectoId equals p.Id
                                 join e in db.estadoSolicitudes on sv.estadoId equals e.Id
-                               where sv.empleadoId == empleadoId
-                               select new DTOSolicitudViaje
-                               {
+                                join cp in db.certificacionPOAs on sv.Id equals cp.solicitudId
+                                into cpoa from cp in cpoa.DefaultIfEmpty()
+                                join cpr in db.certificacionPresupuestarias on sv.Id equals cpr.solicitudId
+                                into cpres from cpr in cpres.DefaultIfEmpty()
+                                join re in db.reprogramaciones on sv.Id equals re.solicitudId
+                                into reps from re in reps.DefaultIfEmpty()
+                                where sv.empleadoId == empleadoId
+                                select new DTOSolicitudViaje
+                                {
                                    Id = sv.Id,
                                    fechaInicio = sv.fechaInicio,
                                    fechaFin = sv.fechaFin,
                                    destino = ld.destino,
                                    proyecto = p.descripcion,
                                    estado = e.estado,
-                                   estadoId = e.Id
-                               }).ToList();
+                                   estadoId = e.Id,
+                                   certPoaId = cp.Id,
+                                   certPresId = cpr.Id,
+                                   reprogId = re.Id
+                                }).ToList();
             return solicitudes;
         }
         public async Task<List<DTOEmpleadoSolicitud>> getSolicitudesByDependencia(int dependenciaId)
@@ -128,7 +137,8 @@ namespace siapv_backend.Services
                                into cpoa from cp in cpoa.DefaultIfEmpty()
                                join cpr in db.certificacionPresupuestarias on s.Id equals cpr.solicitudId
                                into cpres from cpr in cpres.DefaultIfEmpty()
-                               where es.Id == request.estadoId
+                               join re in db.reprogramaciones on s.Id equals re.solicitudId
+                                into reps from re in reps.DefaultIfEmpty()
                                select new DTOSolicitudEstado
                                {
                                     solicitudId = s.Id,
@@ -138,7 +148,8 @@ namespace siapv_backend.Services
                                     fechaInicio = s.fechaInicio,
                                     fechaFin = s.fechaFin,
                                     certPoaId = cp.Id,
-                                    certPresId = cpr.Id
+                                    certPresId = cpr.Id,
+                                    reprogId = re.Id
                                }).ToListAsync();
             
             var empleados = await ( from em in userDb.EmpleadosContratos
@@ -162,7 +173,17 @@ namespace siapv_backend.Services
                                      certPoaId =sol.certPoaId,
                                      certPresId = sol.certPresId,
                                  }).ToList();
-            return solicitudesEmp;
+            if (request.estadoId==null)
+            {
+                return solicitudesEmp.OrderByDescending(x=>x.solicitudId).ToList();
+            } else
+            {
+                return solicitudesEmp
+                .Where(x=> x.estadoId == request.estadoId)
+                .OrderByDescending(x=>x.solicitudId)
+                .ToList();
+            }
+
         }
         public async Task<List<DTOSolicitudesPasajes>> getSolicitudesbyParams(DTOsolParams request)
         {
@@ -234,6 +255,29 @@ namespace siapv_backend.Services
                                             apellido_materno = q.apellido_materno,
                                         }).ToList();
             return solicitudescompiled;
+        }
+        public async Task<RevisionFormularios?> crearRevisiondeFormulario(DTORevision request)
+        {
+            Boolean estado = request.fucav && request.memo && request.presupuesto && request.poa && request.informe;
+            RevisionFormularios new_rev = new RevisionFormularios
+            {
+                fucav = request.fucav,
+                memo = request.memo,
+                informe = request.memo,
+                estadoId = estado ? 6 : 7,
+                presupuesto = request.presupuesto,
+                createdAt = DateTime.UtcNow,
+                solicitudId = request.solicitudId
+            };
+            db.revisiones.Add(new_rev);
+            var sol = await db.solicitudViajes.FirstOrDefaultAsync(x => x.Id == request.solicitudId);
+            sol.estadoId = estado ? 6 : 7;
+            await db.SaveChangesAsync();
+            return new_rev !=null ? new_rev : null;
+        }
+        public async Task<List<EstadoSolicitud>> getEstados()
+        {
+            return await db.estadoSolicitudes.ToListAsync();
         }
     }
 }

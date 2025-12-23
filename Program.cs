@@ -50,6 +50,8 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ICorrelativoService, CorrelativoService> ();
 builder.Services.AddScoped<IPresupuestoService, PresupuestoService>();
 builder.Services.AddScoped<ICertificacionPOAService, CertificacionPOAService>();
+builder.Services.AddScoped<IReprogramacionService, ReprogramacionService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(swagger =>
 {

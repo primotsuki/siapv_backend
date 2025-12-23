@@ -23,7 +23,7 @@ WORKDIR /App
 RUN mv /etc/ssl/openssl.cnf /etc/ssl/openssl.cnf.bak
 COPY --from=build-env /App/openssl.cnf /etc/ssl/
 COPY --from=build-env /App/Assets ./Assets
-# COPY --from=build-env /App/Templates ./Templates
+COPY --from=build-env /App/Templates ./Templates
 COPY --from=build-env /App/out .
 
 ENTRYPOINT ["dotnet", "siapv_backend.dll"]

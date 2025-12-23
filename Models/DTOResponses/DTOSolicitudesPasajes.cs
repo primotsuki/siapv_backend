@@ -1,6 +1,6 @@
 namespace siapv_backend.Models.DTOResponses
 {
-    public class DTOSolicitudEstado
+    public class DTOSolicitudesPasajes
     {
         public int solicitudId {get; set;}
         public string nombres { get; set; } = null!;
@@ -14,6 +14,5 @@ namespace siapv_backend.Models.DTOResponses
         public string estado {get; set; } = null!;
         public int? certPoaId {get; set;}
         public int? certPresId {get; set;}
-        public int? reprogId { get; set; }
     }
 }

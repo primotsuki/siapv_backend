@@ -4,6 +4,8 @@ using siapv_backend.Models.DTORequests;
 using AuthorizeAttribute = siapv_backend.Helpers.AuthorizeAttribute;
 using siapv_backend.Services;
 using siapv_backend.Models.DTOResponses;
+using siapv_backend.Models;
+using FluentEmail.Core;
 namespace siapv_backend.Controllers
 {
     [ApiController]
@@ -12,10 +14,12 @@ namespace siapv_backend.Controllers
     {
        private readonly ISolicitudViajeService _solicitudService;
        private readonly IEmpleadoService _empleadoService;
-       public SolicitudViajeController (ISolicitudViajeService solService, IEmpleadoService empleadoService)
+       private readonly IEmailService _emailService;
+       public SolicitudViajeController (ISolicitudViajeService solService, IEmpleadoService empleadoService, IEmailService emailService)
         {
             _solicitudService = solService;
             _empleadoService = empleadoService;
+            _emailService = emailService;
         }
         [Authorize]
         [HttpGet("solicitudes-dependencia")]
@@ -51,6 +55,7 @@ namespace siapv_backend.Controllers
             DTOUserContext? userContext = usuario as DTOUserContext;
             var empleado = await _empleadoService.getEmpleadoActivoByPersonaId(userContext?.personaId);
             var result = await _solicitudService.generarMemorandum(memo, empleado.Id);
+            var sent = await _emailService.sendInicioViaje(result);
             if (result == null)
             {
                 return BadRequest();
@@ -121,6 +126,39 @@ namespace siapv_backend.Controllers
         public async Task<IActionResult> getMediosTransporte()
         {
             var result = await _solicitudService.getMediosTransporte();
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet("solicitudes-search")]
+        public async Task<IActionResult> getSolicitudesSearch([FromQuery] DTOsolParams request)
+        {
+            var result = await _solicitudService.getSolicitudesbyParams(request);
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("revision-solicitud")]
+        public async Task<IActionResult> createRevisionFormulario([FromBody] DTORevision revision)
+        {
+            var result = await _solicitudService.crearRevisiondeFormulario(revision);
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet("estados")]
+        public async Task<IActionResult> getEstados()
+        {
+            var result = await _solicitudService.getEstados();
             if (result == null)
             {
                 return BadRequest();

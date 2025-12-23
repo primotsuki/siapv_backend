@@ -21,6 +21,8 @@ namespace siapv_backend.DB
         public DbSet<CertificacionPOA> certificacionPOAs {get; set;}
         public DbSet<Role> roles {get; set; }
         public DbSet<userRole> userRoles {get; set;}
+        public DbSet<Reprogramacion> reprogramaciones {get; set;}
+        public DbSet<RevisionFormularios> revisiones {get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<EstadoSolicitud>().HasData(
