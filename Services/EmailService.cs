@@ -55,7 +55,7 @@ namespace siapv_backend.Services
                                     p.apellido_materno
                                 }).FirstOrDefaultAsync();
             var destino = await db.lugarDestinos.FirstOrDefaultAsync(x=>x.Id == solicitud.lugarDestinoId);;
-            var email = await _fluentEmail
+            var email = _fluentEmail
             .To(encargados[0].correo)
             .Subject("Designacion de Viaje")
             .UsingTemplateFromFile("Templates/comision_viaje.cshtml", new
