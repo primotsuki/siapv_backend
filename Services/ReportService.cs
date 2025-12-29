@@ -67,7 +67,7 @@ namespace siapv_backend.Services
                     page.DefaultTextStyle(x=>x.FontFamily("Century Gothic"));
                     page.Header().Column(column =>
                     {
-                        column.Item().AlignCenter().Width(220).Image("Assets/logo_negativo_cruz.png");
+                        column.Item().AlignCenter().Width(220).Image("Assets/logo_aisem.png");
                         column.Item().AlignCenter().Text("MEMORANDUM").SemiBold().FontSize(15).FontColor(Colors.Black);
                         column.Item().AlignCenter().PaddingBottom(10).Text(solicitud.cite_memo).SemiBold().FontSize(15).FontColor(Colors.Black);
                     });
@@ -219,7 +219,7 @@ namespace siapv_backend.Services
                     
                     page.Header().Column(column =>
                     {
-                        column.Item().AlignCenter().Width(110).Image("Assets/logo_negativo_cruz.png");
+                        column.Item().AlignCenter().Width(110).Image("Assets/logo_aisem.png");
                         column.Item().AlignCenter().Text("200 - FORMULARIO UNICO DE COMISION Y AUTORIZACION DE VIAJE").SemiBold().FontSize(12).FontColor(Colors.Black);
                     });
                     page.Content().Element(container =>
@@ -513,7 +513,7 @@ namespace siapv_backend.Services
                                    });
                                });
                             });
-                        column.Item().PaddingVertical(10).AlignCenter().Text("CERTIFICACIÓN PRESUPUESTARIA").SemiBold().FontSize(12).FontColor(Colors.Black);
+                        column.Item().PaddingVertical(10).AlignCenter().Text("CERTIFICACIÓN POA").SemiBold().FontSize(12).FontColor(Colors.Black);
                     });
                     page.Content().Element(container =>
                     {

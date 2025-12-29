@@ -71,7 +71,7 @@ namespace siapv_backend.Services
 
                     page.Header().Column(column =>
                     {
-                       column.Item().AlignCenter().Width(220).Image("Assets/logo_negativo_cruz.png");
+                       column.Item().AlignCenter().Width(220).Image("Assets/logo_aisem.png");
                         column.Item().AlignCenter().Text("500 - PASAJES AÉREOS PENDIENTES DE USO").SemiBold().FontSize(12).FontColor(Colors.Black);
                     });
                     page.Content().Element(container =>
