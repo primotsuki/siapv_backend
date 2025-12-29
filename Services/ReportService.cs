@@ -4,6 +4,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Previewer;
+using QuestPDF.Drawing;
 using System.ComponentModel;
 using siapv_backend.Models;
 
@@ -19,6 +20,9 @@ namespace siapv_backend.Services
         }
         public async Task<Byte[]> getMemorandumDoc(int solicitudId)
         {
+            FontManager.RegisterFont(File.OpenRead("Fonts/CenturyGothic.ttf"));
+            FontManager.RegisterFont(File.OpenRead("Fonts/CenturyGothic-Bold.ttf"));
+
             var solicitud = await (from s in db.solicitudViajes
                                 join d in db.lugarDestinos on s.lugarDestinoId equals d.Id
                                 join p in db.proyectos on s.proyectoId equals p.Id
@@ -60,6 +64,7 @@ namespace siapv_backend.Services
                     page.MarginVertical(5f);
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(11));
+                    page.DefaultTextStyle(x=>x.FontFamily("Century Gothic"));
                     page.Header().Column(column =>
                     {
                         column.Item().AlignCenter().Width(220).Image("Assets/logo_negativo_cruz.png");
@@ -79,7 +84,7 @@ namespace siapv_backend.Services
                                        table.ColumnsDefinition(columns =>
                                        {
                                            columns.RelativeColumn(4);
-                                           columns.RelativeColumn(0.5f);
+                                           columns.RelativeColumn(0.8f);
                                            columns.RelativeColumn(4);
                                        });
 
@@ -92,7 +97,7 @@ namespace siapv_backend.Services
                                        table.Cell().Padding(3).Text($"{empleadoSol.e.DenominacionCargo}").SemiBold();
                                        table.Cell().BorderBottom(1).Element(padCell(solicitud.createdAt.ToLongDateString()));
                                        table.Cell().BorderLeft(1).BorderBottom(1).Element(padCell("Ref.:"));
-                                       table.Cell().BorderBottom(1).Text("VIAJE EN COMISION OFICIAL").SemiBold();
+                                       table.Cell().BorderBottom(1).Element(padCell("VIAJE EN COMISION OFICIAL"));
                                    });
                                 });
                             });
@@ -210,7 +215,7 @@ namespace siapv_backend.Services
                     page.MarginHorizontal(60f);
                     page.MarginVertical(5f);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(11));
+                    page.DefaultTextStyle(x => x.FontSize(10));
                     
                     page.Header().Column(column =>
                     {
@@ -244,7 +249,7 @@ namespace siapv_backend.Services
                                        table.Cell().Border(1).Text("FINANCIAMIENTO");
                                        table.Cell().Border(1).Text(solicitud.financiamiento);
                                        table.Cell().Border(1).Text("FECHA");
-                                       table.Cell().Border(1).Text(solicitud.updatedAt.ToString());
+                                       table.Cell().Border(1).Text(solicitud.updatedAt.ToString()).FontSize(9);
                                    });
                                 });
                             });
@@ -267,7 +272,7 @@ namespace siapv_backend.Services
                                        table.Cell().Border(1).Text($"{empleadoSol.p.Nombres} {empleadoSol.p.apellido_paterno} {empleadoSol.p.apellido_materno}");
                                        table.Cell().Border(1).Text("C.I.");
                                        table.Cell().Border(1).Text(empleadoSol.p.carnet);
-                                       table.Cell().Border(1).Text("Dependencia donde trabaja");
+                                       table.Cell().Border(1).Text("Dependencia:");
                                        table.Cell().ColumnSpan(3).Border(1).Text(empleadoSol.d.descripcion);
                                        table.Cell().Border(1).Text("Cargo que desempeña");
                                        table.Cell().ColumnSpan(3).Border(1).Text(empleadoSol.e.DenominacionCargo);
@@ -359,7 +364,7 @@ namespace siapv_backend.Services
                                         table.Cell().Border(1).Text("Dias de Comisión");
                                         table.Cell().Border(1).Text("0,0").AlignCenter();
                                         table.Cell().Border(1).Text(cantidad_dias.ToString()).AlignCenter();
-                                        table.Cell().Border(1).Text("TOTAL VIÁTICOS");
+                                        table.Cell().Border(1).Text("Total Viaticos");
                                         table.Cell().Border(1).Text("0,00").AlignCenter();
                                         table.Cell().Border(1).Text((cantidad_dias * solicitud.monto_viatico).ToString("0.00")).AlignCenter();
                                    }); 
@@ -403,12 +408,12 @@ namespace siapv_backend.Services
                                            columns.RelativeColumn(3);
                                        });
                                         table.Cell().ColumnSpan(3).Text("4. Aprobación y/o Autorización (Vo. Bo. Firma, Sello y Recepción)").SemiBold();
-                                        table.Cell().RowSpan(4).Border(1).Text("APROBADO POR").FontSize(9).AlignCenter();
-                                        table.Cell().RowSpan(4).Border(1).Text("AUTORIZADO POR").FontSize(9).AlignCenter();
-                                        table.Cell().RowSpan(4).Border(1).Text("Recepción de Pasajes y Viaticos").FontSize(9).AlignCenter();
+                                        table.Cell().Border(1).Height(90).Text("APROBADO POR").FontSize(9).AlignCenter();
+                                        table.Cell().Border(1).Text("AUTORIZADO POR").FontSize(9).AlignCenter();
+                                        table.Cell().Border(1).Text("Recepción de Pasajes y Viaticos").FontSize(9).AlignCenter();
                                         table.Cell().ColumnSpan(3).Text("5. Certificación POA y presupuesto").SemiBold();
-                                        table.Cell().ColumnSpan(2).RowSpan(4).Border(1).Text("Certificación POA").FontSize(9).AlignCenter();
-                                        table.Cell().RowSpan(4).Border(1).Text("Certificación Presupuestaria").FontSize(9).AlignCenter();
+                                        table.Cell().ColumnSpan(2).Border(1).Height(90).Text("Certificación POA").FontSize(9).AlignCenter();
+                                        table.Cell().Border(1).Text("Certificación Presupuestaria").FontSize(9).AlignCenter();
                                    }); 
                                 }); 
                             });
@@ -503,7 +508,7 @@ namespace siapv_backend.Services
                                            columns.RelativeColumn(2);
                                        });     
                                         table.Cell().Image("Assets/logo_normal.png");
-                                        table.Cell().Text("UNIDAD DE PLANIFIACIÓN").AlignCenter().SemiBold();
+                                        table.Cell().Text("UNIDAD DE PLANIFICACIÓN").AlignCenter().SemiBold();
                                         table.Cell().Text($"N° PV/CP/{certificacion.ce.correlativo.ToString("00000")}/2025");
                                    });
                                });
@@ -644,12 +649,9 @@ namespace siapv_backend.Services
                                            columns.RelativeColumn(2);
 
                                        });     
-                                        table.Cell().Border(1).Text("Elaborado Por:").SemiBold().AlignCenter();
+                                        table.Cell().Border(1).Height(170).Text("Elaborado Por:").SemiBold().AlignCenter();
                                         table.Cell().Border(1).Text("Aprobado Por:").SemiBold().AlignCenter();
-
-                                        table.Cell().Border(1).Text(" \n \n \n \n \n").AlignCenter();
-                                        table.Cell().Border(1).Text("").AlignCenter();
-
+                                        table.Cell().Border(1).Text($"Documento de Referencia: {solicitud.cite_memo}");
                                    });
                                 });
                             });
