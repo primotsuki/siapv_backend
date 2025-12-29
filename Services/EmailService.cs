@@ -55,7 +55,7 @@ namespace siapv_backend.Services
                                     p.apellido_materno
                                 }).FirstOrDefaultAsync();
             var destino = await db.lugarDestinos.FirstOrDefaultAsync(x=>x.Id == solicitud.lugarDestinoId);;
-            var email = _fluentEmail
+            var email = await _fluentEmail
             .To(encargados[0].correo)
             .Subject("Designacion de Viaje")
             .UsingTemplateFromFile("Templates/comision_viaje.cshtml", new
@@ -67,6 +67,21 @@ namespace siapv_backend.Services
                 fecha_fin = solicitud.fechaFin.ToLongDateString(),
                 descripcion = solicitud.descripcion_viaje,
                 mensaje_email = "Favor de realizar las acciones correspondientes de acuerdo a normativa vigente, compra de pasajes aereos (si corresponde).",
+                Url="http://siapv.aisem.gob.bo",
+                Text="Ver Designación"
+            }).SendAsync();
+            var email_2 = await _fluentEmail
+            .To(designado.correo)
+            .Subject("Designacion de Viaje")
+            .UsingTemplateFromFile("Templates/comision_viaje.cshtml", new
+            {
+                title = "Designacion de Viaje",
+                nombre_designado = designado?.nombres + " " + designado?.apellido_paterno + " " + designado?.apellido_materno,
+                destino?.destino,
+                fecha_inicio = solicitud.fechaInicio.ToLongDateString(),
+                fecha_fin = solicitud.fechaFin.ToLongDateString(),
+                descripcion = solicitud.descripcion_viaje,
+                mensaje_email = "Se le ha designado en comisión de viaje, favor realizar la solicitud correspondiente dentro del sistema.\n Tomar en cuenta que tiene 8 dias habiles para realizar su informe de Viaje una vez finalizada su comisión",
                 Url="http://siapv.aisem.gob.bo",
                 Text="Ver Designación"
             }).SendAsync();

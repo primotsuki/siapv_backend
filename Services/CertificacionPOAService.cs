@@ -27,6 +27,7 @@ namespace siapv_backend.Services
             {
                 actividadAcpId = request.actividadAcpId,
                 actividadAmpId = request.actividadAmpId,
+                operacionId = request.operacionId,
                 solicitudId = request.solicitudId,
                 correlativo = await corrService.getCorrelativoProceso(2), // proceso 2 para certificaciones POA
                 createdAt = DateTime.UtcNow,

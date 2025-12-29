@@ -467,6 +467,17 @@ namespace siapv_backend.Services
                                     {
                                         e, p
                                     }).FirstOrDefaultAsync();
+            
+            var certificacion = await (from ce in db.certificacionPOAs
+                                        join acp in db.actividadPOAs on ce.actividadAcpId equals acp.Id
+                                        join amp in db.actividadPOAs on ce.actividadAmpId equals amp.Id
+                                        join op in db.operacionPOAs on ce.operacionId equals op.Id
+                                        where ce.solicitudId == solicitudId
+                                        select new
+                                        {
+                                            ce, acp, amp, op
+                                        }).FirstOrDefaultAsync();
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>
@@ -479,8 +490,25 @@ namespace siapv_backend.Services
 
                     page.Header().Column(column =>
                     {
-                       column.Item().AlignCenter().Width(220).Image("Assets/logo_negativo_cruz.png");
-                        column.Item().AlignCenter().Text("CERTIFICACION POA").SemiBold().FontSize(12).FontColor(Colors.Black);
+                       column.Item().Row( row =>
+                            {
+                               row.RelativeItem().Element( container =>
+                               {
+                                   container.Table( table =>
+                                   {
+                                       table.ColumnsDefinition(columns =>
+                                       {
+                                           columns.RelativeColumn(2);
+                                           columns.RelativeColumn(6);
+                                           columns.RelativeColumn(2);
+                                       });     
+                                        table.Cell().Image("Assets/logo_normal.png");
+                                        table.Cell().Text("UNIDAD DE PLANIFIACIÓN").AlignCenter().SemiBold();
+                                        table.Cell().Text($"N° PV/CP/{certificacion.ce.correlativo.ToString("00000")}/2025");
+                                   });
+                               });
+                            });
+                        column.Item().PaddingVertical(10).AlignCenter().Text("CERTIFICACIÓN PRESUPUESTARIA").SemiBold().FontSize(12).FontColor(Colors.Black);
                     });
                     page.Content().Element(container =>
                     {
@@ -619,7 +647,7 @@ namespace siapv_backend.Services
                                         table.Cell().Border(1).Text("Elaborado Por:").SemiBold().AlignCenter();
                                         table.Cell().Border(1).Text("Aprobado Por:").SemiBold().AlignCenter();
 
-                                        table.Cell().Border(1).Text("").AlignCenter();
+                                        table.Cell().Border(1).Text(" \n \n \n \n \n").AlignCenter();
                                         table.Cell().Border(1).Text("").AlignCenter();
 
                                    });
@@ -676,15 +704,32 @@ namespace siapv_backend.Services
                 container.Page(page =>
                 {
                     page.Size(PageSizes.Letter);
-                    page.MarginHorizontal(40f);
-                    page.MarginVertical(40f);
+                    page.MarginHorizontal(50f);
+                    page.MarginVertical(0f);
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(9));
 
                      page.Header().Column(column =>
                     {
-                        column.Item().AlignCenter().Width(220).Image("Assets/logo_negativo_cruz.png");
-                        column.Item().AlignCenter().Text("CERTIFICACIÓN PRESUPUESTARIA").SemiBold().FontSize(12).FontColor(Colors.Black);
+                        column.Item().Row( row =>
+                            {
+                               row.RelativeItem().Element( container =>
+                               {
+                                   container.Table( table =>
+                                   {
+                                       table.ColumnsDefinition(columns =>
+                                       {
+                                           columns.RelativeColumn(2);
+                                           columns.RelativeColumn(6);
+                                           columns.RelativeColumn(2);
+                                       });     
+                                        table.Cell().Image("Assets/logo_normal.png");
+                                        table.Cell().Text("UNIDAD FINANCIERA \n Área de Presupuesto").AlignCenter().SemiBold();
+                                        table.Cell().Text($"N° PV/PS/{certificacion.correlativo.ToString("00000")}/2025");
+                                   });
+                               });
+                            });
+                        column.Item().PaddingVertical(10).AlignCenter().Text("CERTIFICACIÓN PRESUPUESTARIA").SemiBold().FontSize(12).FontColor(Colors.Black);
                     });
                     page.Content().Element(container =>
                     {
@@ -737,7 +782,7 @@ namespace siapv_backend.Services
                                    });
                                });
                             });
-                            column.Item().Row( row =>
+                            column.Item().PaddingVertical(5).Row( row =>
                             {
                                row.RelativeItem().Element( container =>
                                {
@@ -759,8 +804,8 @@ namespace siapv_backend.Services
                                         table.Cell().RowSpan(2).Border(1).Text("Categoria Programatica").SemiBold();
                                         table.Cell().RowSpan(2).Border(1).Text("Partida").SemiBold();
                                         table.Cell().RowSpan(2).Border(1).Text("Descripción").SemiBold();
-                                        table.Cell().Border(1).Text("Presupuesto Vigente").SemiBold();
-                                        table.Cell().Border(1).Text("Certificación Acomulada").SemiBold();
+                                        table.Cell().Border(1).Text("Presupuesto Vigente").FontSize(8).SemiBold();
+                                        table.Cell().Border(1).Text("Certificación Acomulada").FontSize(8).SemiBold();
                                         table.Cell().Border(1).Text("Importe Solicitado").SemiBold();
                                         table.Cell().Border(1).Text("Saldo").SemiBold();
                                         table.Cell().Border(1).Text("Saldo").SemiBold();
@@ -794,7 +839,8 @@ namespace siapv_backend.Services
                                 .Justify();
                             column.Item()
                                 .PaddingVertical(20)
-                                .Text(certificacion.createdAt.ToLongDateString());
+                                .AlignCenter()
+                                .Text($"La Paz, {certificacion.createdAt.ToLongDateString()}");
                         });
                     });
                 });

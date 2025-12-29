@@ -99,6 +99,19 @@ namespace siapv_backend.Controllers
             }
             return Ok(result);
         }
+        [HttpGet("mis-pendientes")]
+        public async Task<IActionResult> misPendientes()
+        {
+            HttpContext.Items.TryGetValue("User", out var usuario);
+            DTOUserContext? userContext = usuario as DTOUserContext;
+            var empleado = await _empleadoService.getEmpleadoActivoByPersonaId(userContext?.personaId);
+            var result = await _solicitudService.getPendientes(empleado != null ? empleado.Id : 0);
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
         [Authorize]
         [HttpGet("solicitud/{id}")]
         public async Task<IActionResult> getSolicitudById(int id)

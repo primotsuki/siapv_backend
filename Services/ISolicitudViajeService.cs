@@ -8,6 +8,7 @@ namespace siapv_backend.Services
         Task<List<LugarDestino>> GetDestinos();
         Task<SolicitudViaje?> generarMemorandum(DTOMemorandum memo,int designadorId);
         Task<List<DTOSolicitudViaje>> getSolicitudes(int empleadoId);
+        Task<List<DTOSolicitudesPendientes>> getPendientes(int empleadoId);
         Task<SolicitudViaje?> completarSolicitud(DTOFucav solicitudId);
         Task<SolicitudViaje?> getSolicitudById(int solicitudId);
         Task<List<MediosTransporte>> getMediosTransporte();

@@ -11,6 +11,8 @@ namespace siapv_backend.Models
         public ActividadPOA? actividadAmp { get; set; }
         public int actividadAcpId { get; set; }
         public ActividadPOA? actividadAcp { get; set; }
+        public int? operacionId {get; set;}
+        public OperacionPOA? operacion {get; set;}
         public DateTime createdAt { get; set; }
         public DateTime updatedAt { get; set; }
     }

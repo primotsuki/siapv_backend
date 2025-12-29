@@ -73,6 +73,24 @@ namespace siapv_backend.Services
                                 }).ToList();
             return solicitudes;
         }
+        public async Task<List<DTOSolicitudesPendientes>> getPendientes(int empleadoId)
+        {
+            var solicitudes = (from sv in db.solicitudViajes
+                                join ld in db.lugarDestinos on sv.lugarDestinoId equals ld.Id
+                                join p in db.proyectos on sv.proyectoId equals p.Id
+                                join e in db.estadoSolicitudes on sv.estadoId equals e.Id
+                                where sv.empleadoId == empleadoId && sv.estadoId < 4
+                                select new DTOSolicitudesPendientes
+                                {
+                                   solicitudId = sv.Id,
+                                   fechaInicio = sv.fechaInicio,
+                                   fechaFin = sv.fechaFin,
+                                   destino = ld.destino,
+                                   estado = e.estado,
+                                   estadoId = e.Id,
+                                }).ToList();
+            return solicitudes;
+        }
         public async Task<List<DTOEmpleadoSolicitud>> getSolicitudesByDependencia(int dependenciaId)
         {
 
@@ -106,7 +124,7 @@ namespace siapv_backend.Services
             var sol = await db.solicitudViajes.FindAsync(solicitud.Id);
             if (solicitud != null)
             {
-                sol.estadoId = 2; // Estado: Completado
+                sol.estadoId = 2; // Estado: Solicitado
                 sol.horaInicio = solicitud.horaInicio;
                 sol.horaFin = solicitud.horaFin;
                 sol.lugarOrigenId = solicitud.lugarOrigenId;
