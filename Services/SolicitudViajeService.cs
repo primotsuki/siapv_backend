@@ -439,9 +439,9 @@ namespace siapv_backend.Services
                             column.Item().Padding(10).Text("1. ANTECEDENTES.").Bold();
                             parser.Render(informe.antecedentes, column);
                             column.Item().Padding(10).Text("2. DESARROLLO.").Bold();
-                            parser.Render(informe.antecedentes, column);
+                            parser.Render(informe.desarrollo, column);
                             column.Item().Padding(10).Text("3. CONCLUSIONES Y RECOMENDACIONES.").Bold();
-                            parser.Render(informe.antecedentes, column);
+                            parser.Render(informe.conclusion, column);
                         });
                     });
                 });
@@ -450,11 +450,21 @@ namespace siapv_backend.Services
         }
         public async Task<InformeViaje> getInformeEdit(int solicitudId)
         {
-            return new InformeViaje();
+            var informe = await db.informeViajes.FirstOrDefaultAsync(x => x.solicitudId == solicitudId);
+
+            return informe;
         }
         public async Task<InformeViaje> editInforme(DTOInformeViaje request)
         {
-            return new InformeViaje();
+            var informe = await db.informeViajes.FirstOrDefaultAsync(x => x.solicitudId == request.solicitudId);
+            informe.cite_doc = request.cite_doc;
+            informe.antecedentes = request.antecedentes;
+            informe.conclusion = request.conclusion;
+            informe.desarrollo = request.desarrollo;
+            informe.updatedAt = DateTime.UtcNow;
+            db.informeViajes.Update(informe);
+            await db.SaveChangesAsync();
+            return informe;
         }
     }
 }

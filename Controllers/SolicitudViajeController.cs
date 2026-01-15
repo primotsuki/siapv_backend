@@ -196,5 +196,27 @@ namespace siapv_backend.Controllers
             var pdfBytes = await _solicitudService.getInformeViaje(id);
             return File(pdfBytes, "application/pdf", "document.pdf");
         }
+        [Authorize]
+        [HttpGet("informe-viaje/{id}")]
+        public async Task<IActionResult> getInformeEdit(int id)
+        {
+            var result = await _solicitudService.getInformeEdit(id);
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("edit-informe-viaje")]
+        public async Task<IActionResult> editInforme([FromBody] DTOInformeViaje request)
+        {
+            var result = await _solicitudService.editInforme(request);
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
     }
 }

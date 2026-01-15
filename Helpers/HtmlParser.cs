@@ -58,6 +58,7 @@ namespace siapv_backend.Helpers
 
                         row.RelativeItem().Text(text =>
                         {
+                            text.Justify();
                             foreach (var child in li.ChildNodes)
                             {
                                 if (child.Name == "strong")
@@ -84,6 +85,7 @@ namespace siapv_backend.Helpers
 
                         row.RelativeItem().Text(text =>
                         {
+                            text.Justify();
                             foreach (var child in li.ChildNodes)
                             {
                                 if (child.Name == "strong")
