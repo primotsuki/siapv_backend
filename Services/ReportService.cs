@@ -310,7 +310,7 @@ namespace siapv_backend.Services
                                         table.Cell().ColumnSpan(4).Border(1).Text("2. Datos del Viaje").SemiBold();
                                         table.Cell().Border(1).Text("Porcentaje").AlignCenter();
                                         table.Cell().ColumnSpan(2).Border(1).Text("INICIO").SemiBold().AlignCenter();   
-                                        table.Cell().ColumnSpan(2).Border(1).Text("CONCULSION").SemiBold().AlignCenter();
+                                        table.Cell().ColumnSpan(2).Border(1).Text("CONCLUSIÓN").SemiBold().AlignCenter();
                                         table.Cell().Border(1).Text("100%").AlignCenter();                                       
                                         table.Cell().Border(1).Text("FECHA").SemiBold().AlignCenter();
                                         table.Cell().Border(1).Text("HORA").SemiBold().AlignCenter();

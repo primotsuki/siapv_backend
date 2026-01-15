@@ -4,6 +4,10 @@ using siapv_backend.DB;
 using siapv_backend.Models;
 using siapv_backend.Models.DTORequests;
 using siapv_backend.Models.DTOResponses;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Drawing;
+using siapv_backend.Helpers;
 
 namespace siapv_backend.Services
 {
@@ -296,6 +300,161 @@ namespace siapv_backend.Services
         public async Task<List<EstadoSolicitud>> getEstados()
         {
             return await db.estadoSolicitudes.ToListAsync();
+        }
+        public async Task<InformeViaje> createInforme(DTOInformeViaje request)
+        {
+            var informe = new InformeViaje
+            {
+                cite_doc = request.cite_doc,
+                antecedentes = request.antecedentes,
+                conclusion = request.conclusion,
+                desarrollo = request.desarrollo,
+                solicitudId = request.solicitudId,
+                createdAt = DateTime.UtcNow,  
+            };
+            db.informeViajes.Add(informe);
+            await db.SaveChangesAsync();
+            return informe;
+        }
+        public async Task<Byte[]> getInformeViaje(int solicitudId)
+        {
+            FontManager.RegisterFont(File.OpenRead("Fonts/CenturyGothic.ttf"));
+            FontManager.RegisterFont(File.OpenRead("Fonts/CenturyGothic-Bold.ttf"));
+            
+            var solicitud = await (from s in db.solicitudViajes
+                                join d in db.lugarDestinos on s.lugarDestinoId equals d.Id
+                                join p in db.proyectos on s.proyectoId equals p.Id
+                                join f in db.fuenteFinanciamientos on s.fuenteId equals f.Id
+                                where s.Id == solicitudId
+                                select new
+                                {
+                                   s.empleadoId,
+                                   s.designadorId,
+                                   s.cite_memo,
+                                   lugar_destino = d.destino,
+                                   proyecto = p.descripcion,
+                                   financiamiento = f.descripcion,
+                                   s.fechaInicio,
+                                   s.fechaFin,
+                                   s.horaInicio,
+                                   s.horaFin,
+                                   s.descripcion_viaje,
+                                   s.createdAt
+                                }).FirstOrDefaultAsync();
+            var empleadoSol = await (from e in userDb.EmpleadosContratos
+                                    join p in userDb.Personas on e.personaId equals p.Id
+                                    where solicitud.empleadoId == e.Id
+                                    select new
+                                    {
+                                        e, p
+                                    }).FirstOrDefaultAsync();
+            var empleadoDesignacion = await (from e in userDb.EmpleadosContratos
+                                    join p in userDb.Personas on e.personaId equals p.Id
+                                    where solicitud.designadorId == e.Id
+                                    select new
+                                    {
+                                        e, p
+                                    }).FirstOrDefaultAsync();
+            var informe = await db.informeViajes.FirstOrDefaultAsync(x => x.solicitudId == solicitudId);
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.Letter);
+                    page.MarginHorizontal(60f);
+                    page.MarginVertical(5f);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(11));
+                    page.DefaultTextStyle(x=>x.FontFamily("Century Gothic"));
+                    page.Header().Column(column =>
+                    {
+                        column.Item().AlignCenter().Width(220).Image("Assets/logo_aisem.png");
+                        
+                    });
+                    page.Content().Element(container =>
+                    {
+                        container.Column(column =>{
+                            column.Item().AlignCenter().Text("INFORME").SemiBold().FontSize(12).FontColor(Colors.Black);
+                            column.Item().AlignCenter().PaddingBottom(10).Text(informe.cite_doc).SemiBold().FontSize(12).FontColor(Colors.Black);
+                           column.Item().Row( row =>
+                           {
+                               row.RelativeItem().Element(container =>
+                               {
+                                  container.Table(table =>
+                                  {
+                                     table.ColumnsDefinition(columns =>
+                                     {
+                                        columns.RelativeColumn(3);
+                                        columns.RelativeColumn(2);
+                                        columns.RelativeColumn(8);
+                                        columns.RelativeColumn(2);
+                                     });
+                                    table.Cell().RowSpan(9).BorderBottom(1).Text("");
+                                    table.Cell().RowSpan(2).Text("A:").Bold();
+                                    table.Cell().Text($"{empleadoDesignacion.p.Nombres} {empleadoDesignacion.p.apellido_paterno} {empleadoDesignacion.p.apellido_materno}");
+                                    table.Cell().RowSpan(8).BorderBottom(1).Text("");
+                                    table.Cell().PaddingBottom(5).Text($"{empleadoDesignacion.e.DenominacionCargo}".ToUpper()).SemiBold();
+                                    table.Cell().RowSpan(2).Text("DE:").Bold();
+                                    table.Cell().Text($"{empleadoSol.p.Nombres} {empleadoSol.p.apellido_paterno} {empleadoSol.p.apellido_materno}");
+                                    table.Cell().PaddingBottom(5).Text($"{empleadoSol.e.DenominacionCargo}".ToUpper()).SemiBold();
+                                    table.Cell().Text("REF.:").SemiBold();
+                                    table.Cell().PaddingBottom(5).Text("INFORME DE DESCARGO DE VIAJE EN COMISIÓN").SemiBold();                                  
+                                    table.Cell().Text("FECHA:").SemiBold();
+                                    table.Cell().Text($"{informe.createdAt.ToLongDateString()}");
+                                    table.Cell().ColumnSpan(2).BorderBottom(1).Text("");
+                                  });
+                               });
+                           });
+                           column.Item().Row(row =>
+                           {
+                               row.RelativeItem().Element( container =>
+                               {
+                                   container.Table( table =>
+                                   {
+                                       table.ColumnsDefinition(columns =>
+                                       {
+                                           columns.RelativeColumn(4);
+                                           columns.RelativeColumn(4);
+                                           columns.RelativeColumn(4);
+                                           columns.RelativeColumn(4);
+
+                                           table.Cell().PaddingTop(10).Text("DESTINO:");
+                                           table.Cell().ColumnSpan(3).PaddingTop(10).Border(1).Height(30).Text($"{solicitud.lugar_destino}").AlignCenter();
+                                            table.Cell().Padding(5).Text("PROYECTO");
+                                            table.Cell().ColumnSpan(3).Padding(5).Border(1).Height(30).Text($"{solicitud.proyecto}");
+                                            table.Cell().Padding(5).Text("Fecha de Salida");
+                                            table.Cell().Padding(5).Border(1).Height(30).Text($"{solicitud.fechaInicio.ToShortDateString()}").AlignCenter();
+                                            table.Cell().Padding(5).Text("Fecha de Retorno");
+                                            table.Cell().Padding(5).Border(1).Height(30).Text($"{solicitud.fechaInicio.ToShortDateString()}").AlignCenter();
+                                            table.Cell().Padding(5).Text("Hora de Salida");
+                                            table.Cell().Padding(5).Border(1).Height(30).Text($"{solicitud.horaInicio.ToString()}").AlignCenter();
+                                            table.Cell().Padding(5).Text("Hora de Retorno");
+                                            table.Cell().Padding(5).Border(1).Height(30).Text($"{solicitud.horaFin.ToString()}").AlignCenter();
+                                            table.Cell().ColumnSpan(4).BorderBottom(1).Text("");
+                                       });
+                                   });
+                               });
+                           });
+                            var parser = new HtmlParser();
+                            column.Item().Padding(10).Text("1. ANTECEDENTES.").Bold();
+                            parser.Render(informe.antecedentes, column);
+                            column.Item().Padding(10).Text("2. DESARROLLO.").Bold();
+                            parser.Render(informe.antecedentes, column);
+                            column.Item().Padding(10).Text("3. CONCLUSIONES Y RECOMENDACIONES.").Bold();
+                            parser.Render(informe.antecedentes, column);
+                        });
+                    });
+                });
+            });
+            return document.GeneratePdf();
+        }
+        public async Task<InformeViaje> getInformeEdit(int solicitudId)
+        {
+            return new InformeViaje();
+        }
+        public async Task<InformeViaje> editInforme(DTOInformeViaje request)
+        {
+            return new InformeViaje();
         }
     }
 }

@@ -178,5 +178,23 @@ namespace siapv_backend.Controllers
             }
             return Ok(result);
         }
+        [Authorize]
+        [HttpPost("crear-informe")]
+        public async Task<IActionResult> createInforme([FromBody]DTOInformeViaje request)
+        {
+            var result = await _solicitudService.createInforme(request);
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet("print-informe-viaje")]
+        public async Task<IActionResult> printInformeViaje(int id)
+        {
+            var pdfBytes = await _solicitudService.getInformeViaje(id);
+            return File(pdfBytes, "application/pdf", "document.pdf");
+        }
     }
 }

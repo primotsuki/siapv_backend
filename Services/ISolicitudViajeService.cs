@@ -17,6 +17,11 @@ namespace siapv_backend.Services
         Task<List<DTOSolicitudEstado>> getSolicitudByEstados(DTOsolicitudReq request);
         Task<List<DTOSolicitudesPasajes>> getSolicitudesbyParams(DTOsolParams request);
         Task<RevisionFormularios?> crearRevisiondeFormulario(DTORevision request);
-        Task<List<EstadoSolicitud>> getEstados(); 
+        Task<List<EstadoSolicitud>> getEstados();
+        Task<InformeViaje> createInforme(DTOInformeViaje request);
+        Task<Byte[]> getInformeViaje(int solicitudId);
+        Task<InformeViaje> getInformeEdit(int solicitudId);
+        Task<InformeViaje> editInforme(DTOInformeViaje request);
+        
     }
 }

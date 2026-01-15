@@ -23,6 +23,7 @@ namespace siapv_backend.DB
         public DbSet<userRole> userRoles {get; set;}
         public DbSet<Reprogramacion> reprogramaciones {get; set;}
         public DbSet<RevisionFormularios> revisiones {get; set;}
+        public DbSet<InformeViaje> informeViajes {get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<EstadoSolicitud>().HasData(

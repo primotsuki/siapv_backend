@@ -16,13 +16,13 @@ namespace siapv_backend.Services
                 using (var ldapConnection = new LdapConnection(
                    new LdapDirectoryIdentifier(_ldapDomain, 389)))
                 {
-                    // var networkCredential = new NetworkCredential($"AISEM\\{username}", password);
-                    // ldapConnection.Credential = networkCredential;
-                    // ldapConnection.AuthType = AuthType.Basic;
-                    // ldapConnection.SessionOptions.ProtocolVersion = 3;
-                    // ldapConnection.SessionOptions.SecureSocketLayer = false;
+                    var networkCredential = new NetworkCredential($"AISEM\\{username}", password);
+                    ldapConnection.Credential = networkCredential;
+                    ldapConnection.AuthType = AuthType.Basic;
+                    ldapConnection.SessionOptions.ProtocolVersion = 3;
+                    ldapConnection.SessionOptions.SecureSocketLayer = false;
 
-                    // ldapConnection.Bind();
+                    ldapConnection.Bind();
                     return true;
                 }
             }
