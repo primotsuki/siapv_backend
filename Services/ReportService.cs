@@ -707,7 +707,7 @@ namespace siapv_backend.Services
                 {
                     page.Size(PageSizes.Letter);
                     page.MarginHorizontal(50f);
-                    page.MarginVertical(0f);
+                    page.MarginVertical(40f);
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(9));
 
@@ -843,6 +843,22 @@ namespace siapv_backend.Services
                                 .PaddingVertical(20)
                                 .AlignCenter()
                                 .Text($"La Paz, {certificacion.createdAt.ToLongDateString()}");
+                            column.Item().Row( row =>
+                            {
+                               row.RelativeItem().Element( container =>
+                               {
+                                   container.Table( table =>
+                                   {
+                                       table.ColumnsDefinition(columns =>
+                                       {
+                                           columns.RelativeColumn(1);
+                                           columns.RelativeColumn(1);
+                                       });     
+                                        table.Cell().Height(130).AlignBottom().Text("Elaborado Por:").SemiBold().AlignCenter();
+                                        table.Cell().Height(130).AlignBottom().Text("Aprobado Por:").SemiBold().AlignCenter();
+                                   });
+                               });
+                            });
                         });
                     });
                 });
